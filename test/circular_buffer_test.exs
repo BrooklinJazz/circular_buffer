@@ -6,14 +6,12 @@ defmodule CircularBufferTest do
     {:error, _} = CircularBuffer.read(%CircularBuffer{capacity: 3})
   end
 
-  @tag :skip
   test "can write then read a single value" do
     buffer = CircularBuffer.write(%CircularBuffer{capacity: 3}, :foo)
     {:ok, val} = CircularBuffer.read(buffer)
     assert val == :foo
   end
 
-  @tag :skip
   test "reading a buffer gets you the oldest value" do
     buffer =
       %CircularBuffer{capacity: 3}
@@ -25,7 +23,6 @@ defmodule CircularBufferTest do
     assert val == :foo
   end
 
-  @tag :skip
   test "can pop values" do
     buffer =
       %CircularBuffer{capacity: 3}
@@ -39,7 +36,6 @@ defmodule CircularBufferTest do
     assert val == :baz
   end
 
-  @tag :skip
   test "can overwrite the oldest entry" do
     buffer =
       %CircularBuffer{capacity: 3}
@@ -52,13 +48,14 @@ defmodule CircularBufferTest do
     assert val == :bar
   end
 
-  @tag :skip
   test "clear empties the buffer" do
     buffer =
       %CircularBuffer{capacity: 3}
       |> CircularBuffer.write(:foo)
       |> CircularBuffer.write(:bar)
       |> CircularBuffer.write(:baz)
+      # Brooklin's Note: I've added the clear/0 function here.
+      |> CircularBuffer.clear()
 
     {:error, _} = CircularBuffer.read(buffer)
   end
