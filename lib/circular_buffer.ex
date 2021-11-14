@@ -4,23 +4,23 @@ defmodule CircularBuffer do
   """
 
   @enforce_keys [:capacity]
-  defstruct @enforce_keys ++ [buffer: []]
+  defstruct @enforce_keys ++ [store: []]
 
   @type t :: %__MODULE__{
           capacity: integer,
-          buffer: list()
+          store: list()
         }
 
   @doc """
   Read the oldest entry in the queue, fail if it is empty
   """
-  def read(%__MODULE__{buffer: []}) do
+  def read(%__MODULE__{store: []}) do
     {:error, :empty_buffer}
   end
 
   @spec read(t) :: {:ok, any} | {:error, atom}
   def read(buffer) do
-    [head | _] = Enum.reverse(buffer.buffer)
+    [head | _] = Enum.reverse(buffer.store)
     {:ok, head}
   end
 
@@ -31,8 +31,8 @@ defmodule CircularBuffer do
   """
   @spec pop(t) :: t
   def pop(buffer) do
-    [_ | tail] = Enum.reverse(buffer.buffer)
-    %{buffer | buffer: Enum.reverse(tail)}
+    [_ | tail] = Enum.reverse(buffer.store)
+    %{buffer | store: Enum.reverse(tail)}
   end
 
   @doc """
@@ -42,16 +42,10 @@ defmodule CircularBuffer do
   the test seemed to indicate that was desired.
   If not, it would be simple to rewrite this to error instead of overwrite.
   """
-  @spec write(t, any) :: t() | {:error, atom}
-  def write(%{buffer: buffer, capacity: capacity} = main_buffer, item)
-      when length(buffer) >= capacity do
-    overwrite(main_buffer, item)
-  end
-
   def write(buffer, item) do
-    case length(buffer.buffer) < buffer.capacity do
+    case length(buffer.store) < buffer.capacity do
       true ->
-        %{buffer | buffer: [item | buffer.buffer]}
+        %{buffer | store: [item | buffer.store]}
 
       _ ->
         overwrite(buffer, item)
@@ -63,8 +57,8 @@ defmodule CircularBuffer do
   """
   @spec overwrite(t, any) :: t()
   def overwrite(buffer, item) do
-    [_ | tail] = Enum.reverse(buffer.buffer)
-    %{buffer | buffer: [item | Enum.reverse(tail)]}
+    [_ | tail] = Enum.reverse(buffer.store)
+    %{buffer | store: [item | Enum.reverse(tail)]}
   end
 
   @doc """
