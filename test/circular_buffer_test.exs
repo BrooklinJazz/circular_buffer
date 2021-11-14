@@ -36,6 +36,14 @@ defmodule CircularBufferTest do
     assert val == :baz
   end
 
+  test "can pop empty values" do
+    buffer =
+      %CircularBuffer{capacity: 3}
+      |> CircularBuffer.pop()
+
+    {:error, _} = CircularBuffer.read(buffer)
+  end
+
   test "can overwrite the oldest entry" do
     buffer =
       %CircularBuffer{capacity: 3}
@@ -54,9 +62,23 @@ defmodule CircularBufferTest do
       |> CircularBuffer.write(:foo)
       |> CircularBuffer.write(:bar)
       |> CircularBuffer.write(:baz)
-      # Brooklin's Note: I've added the clear/0 function here.
       |> CircularBuffer.clear()
 
     {:error, _} = CircularBuffer.read(buffer)
+  end
+
+  @tag timeout: :infinity
+  @tag :benchmark
+  test "performance test" do
+    Benchee.run(
+      %{
+        "draft" => fn buffer -> buffer |> CircularBuffer.write(1) |> CircularBuffer.read() end
+      },
+      inputs: %{
+        "Small" => %CircularBuffer{capacity: 1},
+        "Medium" => %CircularBuffer{capacity: 101, store: Enum.to_list(1..100)},
+        "Large" => %CircularBuffer{capacity: 1001, store: Enum.to_list(1..1001)}
+      }
+    )
   end
 end
