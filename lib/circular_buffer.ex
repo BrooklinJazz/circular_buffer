@@ -14,14 +14,16 @@ defmodule CircularBuffer do
   @doc """
   Read the oldest entry in the queue, fail if it is empty
   """
-  def read(%__MODULE__{store: []}) do
-    {:error, :empty_buffer}
-  end
-
   @spec read(t) :: {:ok, any} | {:error, atom}
   def read(buffer) do
-    [head | _] = Enum.reverse(buffer.store)
-    {:ok, head}
+    case buffer.store do
+      [] ->
+        {:error, :empty_buffer}
+
+      _ ->
+        [head | _] = Enum.reverse(buffer.store)
+        {:ok, head}
+    end
   end
 
   @doc """
