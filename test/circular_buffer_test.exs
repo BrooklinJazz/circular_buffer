@@ -36,14 +36,6 @@ defmodule CircularBufferTest do
     assert val == :baz
   end
 
-  test "can pop empty values" do
-    buffer =
-      %CircularBuffer{capacity: 3}
-      |> CircularBuffer.pop()
-
-    {:error, _} = CircularBuffer.read(buffer)
-  end
-
   test "can overwrite the oldest entry" do
     buffer =
       %CircularBuffer{capacity: 3}
